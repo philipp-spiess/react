@@ -31,6 +31,8 @@ import SyntheticUIEvent from './SyntheticUIEvent';
 import SyntheticWheelEvent from './SyntheticWheelEvent';
 import getEventCharCode from './getEventCharCode';
 
+import {interactiveEventTypeNames, nonInteractiveEventTypeNames} from './BrowserEventConstants';
+
 /**
  * Turns
  * ['abort', ...]
@@ -49,76 +51,6 @@ import getEventCharCode from './getEventCharCode';
  *   'topAbort': { sameConfig }
  * };
  */
-const interactiveEventTypeNames: Array<string> = [
-  'blur',
-  'cancel',
-  'click',
-  'close',
-  'contextMenu',
-  'copy',
-  'cut',
-  'doubleClick',
-  'dragEnd',
-  'dragStart',
-  'drop',
-  'focus',
-  'input',
-  'invalid',
-  'keyDown',
-  'keyPress',
-  'keyUp',
-  'mouseDown',
-  'mouseUp',
-  'paste',
-  'pause',
-  'play',
-  'rateChange',
-  'reset',
-  'seeked',
-  'submit',
-  'touchCancel',
-  'touchEnd',
-  'touchStart',
-  'volumeChange',
-];
-const nonInteractiveEventTypeNames: Array<string> = [
-  'abort',
-  'animationEnd',
-  'animationIteration',
-  'animationStart',
-  'canPlay',
-  'canPlayThrough',
-  'drag',
-  'dragEnter',
-  'dragExit',
-  'dragLeave',
-  'dragOver',
-  'durationChange',
-  'emptied',
-  'encrypted',
-  'ended',
-  'error',
-  'load',
-  'loadedData',
-  'loadedMetadata',
-  'loadStart',
-  'mouseMove',
-  'mouseOut',
-  'mouseOver',
-  'playing',
-  'progress',
-  'scroll',
-  'seeking',
-  'stalled',
-  'suspend',
-  'timeUpdate',
-  'toggle',
-  'touchMove',
-  'transitionEnd',
-  'waiting',
-  'wheel',
-];
-
 const eventTypes: EventTypes = {};
 const topLevelEventsToDispatchConfig: {
   [key: TopLevelTypes]: DispatchConfig,
