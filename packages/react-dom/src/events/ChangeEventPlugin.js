@@ -30,7 +30,7 @@ import * as inputValueTracking from '../client/inputValueTracking';
 import {setDefaultValue} from '../client/ReactDOMFiberInput';
 
 const eventTypes = {
-  change: {
+  onChange: {
     phasedRegistrationNames: {
       bubbled: 'onChange',
       captured: 'onChangeCapture',

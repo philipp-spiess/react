@@ -56,7 +56,7 @@ const SPACEBAR_CHAR = String.fromCharCode(SPACEBAR_CODE);
 
 // Events and their corresponding property names.
 const eventTypes = {
-  beforeInput: {
+  onBeforeInput: {
     phasedRegistrationNames: {
       bubbled: 'onBeforeInput',
       captured: 'onBeforeInputCapture',
@@ -68,7 +68,7 @@ const eventTypes = {
       TOP_PASTE,
     ],
   },
-  compositionEnd: {
+  onCompositionEnd: {
     phasedRegistrationNames: {
       bubbled: 'onCompositionEnd',
       captured: 'onCompositionEndCapture',
@@ -82,7 +82,7 @@ const eventTypes = {
       TOP_MOUSE_DOWN,
     ],
   },
-  compositionStart: {
+  onCompositionStart: {
     phasedRegistrationNames: {
       bubbled: 'onCompositionStart',
       captured: 'onCompositionStartCapture',
@@ -96,7 +96,7 @@ const eventTypes = {
       TOP_MOUSE_DOWN,
     ],
   },
-  compositionUpdate: {
+  onCompositionUpdate: {
     phasedRegistrationNames: {
       bubbled: 'onCompositionUpdate',
       captured: 'onCompositionUpdateCapture',

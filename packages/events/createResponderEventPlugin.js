@@ -313,7 +313,7 @@ export default function createResponderEventPlugin(TopLevelTypes: {
      * On a `touchStart`/`mouseDown`, is it desired that this element become the
      * responder?
      */
-    startShouldSetResponder: {
+    onStartShouldSetResponder: {
       phasedRegistrationNames: {
         bubbled: 'onStartShouldSetResponder',
         captured: 'onStartShouldSetResponderCapture',
@@ -330,7 +330,7 @@ export default function createResponderEventPlugin(TopLevelTypes: {
      *
      * TODO: This shouldn't bubble.
      */
-    scrollShouldSetResponder: {
+    onScrollShouldSetResponder: {
       phasedRegistrationNames: {
         bubbled: 'onScrollShouldSetResponder',
         captured: 'onScrollShouldSetResponderCapture',
@@ -345,7 +345,7 @@ export default function createResponderEventPlugin(TopLevelTypes: {
      *
      * TODO: This shouldn't bubble.
      */
-    selectionChangeShouldSetResponder: {
+    onSelectionChangeShouldSetResponder: {
       phasedRegistrationNames: {
         bubbled: 'onSelectionChangeShouldSetResponder',
         captured: 'onSelectionChangeShouldSetResponderCapture',
@@ -357,7 +357,7 @@ export default function createResponderEventPlugin(TopLevelTypes: {
      * On a `touchMove`/`mouseMove`, is it desired that this element become the
      * responder?
      */
-    moveShouldSetResponder: {
+    onMoveShouldSetResponder: {
       phasedRegistrationNames: {
         bubbled: 'onMoveShouldSetResponder',
         captured: 'onMoveShouldSetResponderCapture',
@@ -368,29 +368,29 @@ export default function createResponderEventPlugin(TopLevelTypes: {
     /**
      * Direct responder events dispatched directly to responder. Do not bubble.
      */
-    responderStart: {
+    onResponderStart: {
       registrationName: 'onResponderStart',
       dependencies: startDependencies,
     },
-    responderMove: {
+    onResponderMove: {
       registrationName: 'onResponderMove',
       dependencies: moveDependencies,
     },
-    responderEnd: {
+    onResponderEnd: {
       registrationName: 'onResponderEnd',
       dependencies: endDependencies,
     },
-    responderRelease: {
+    onResponderRelease: {
       registrationName: 'onResponderRelease',
       dependencies: [],
     },
-    responderTerminationRequest: {
+    onResponderTerminationRequest: {
       registrationName: 'onResponderTerminationRequest',
       dependencies: [],
     },
-    responderGrant: {registrationName: 'onResponderGrant', dependencies: []},
-    responderReject: {registrationName: 'onResponderReject', dependencies: []},
-    responderTerminate: {
+    onResponderGrant: {registrationName: 'onResponderGrant', dependencies: []},
+    onResponderReject: {registrationName: 'onResponderReject', dependencies: []},
+    onResponderTerminate: {
       registrationName: 'onResponderTerminate',
       dependencies: [],
     },
@@ -403,12 +403,12 @@ export default function createResponderEventPlugin(TopLevelTypes: {
     nativeEventTarget: EventTarget,
   ) {
     const shouldSetEventType = isStartish(topLevelType)
-      ? eventTypes.startShouldSetResponder
+      ? eventTypes.onStartShouldSetResponder
       : isMoveish(topLevelType)
-        ? eventTypes.moveShouldSetResponder
+        ? eventTypes.onMoveShouldSetResponder
         : topLevelType === TopLevelTypes.topSelectionChange
-          ? eventTypes.selectionChangeShouldSetResponder
-          : eventTypes.scrollShouldSetResponder;
+          ? eventTypes.onSelectionChangeShouldSetResponder
+          : eventTypes.onScrollShouldSetResponder;
 
     // TODO: stop one short of the current responder.
     const bubbleShouldSetFrom = !responderInst
@@ -444,7 +444,7 @@ export default function createResponderEventPlugin(TopLevelTypes: {
     }
     let extracted;
     const grantEvent = ResponderSyntheticEvent.getPooled(
-      eventTypes.responderGrant,
+      eventTypes.onResponderGrant,
       wantsResponderInst,
       nativeEvent,
       nativeEventTarget,
@@ -455,7 +455,7 @@ export default function createResponderEventPlugin(TopLevelTypes: {
     const blockHostResponder = executeDirectDispatch(grantEvent) === true;
     if (responderInst) {
       const terminationRequestEvent = ResponderSyntheticEvent.getPooled(
-        eventTypes.responderTerminationRequest,
+        eventTypes.onResponderTerminationRequest,
         responderInst,
         nativeEvent,
         nativeEventTarget,
@@ -472,7 +472,7 @@ export default function createResponderEventPlugin(TopLevelTypes: {
 
       if (shouldSwitch) {
         const terminateEvent = ResponderSyntheticEvent.getPooled(
-          eventTypes.responderTerminate,
+          eventTypes.onResponderTerminate,
           responderInst,
           nativeEvent,
           nativeEventTarget,
@@ -483,7 +483,7 @@ export default function createResponderEventPlugin(TopLevelTypes: {
         changeResponder(wantsResponderInst, blockHostResponder);
       } else {
         const rejectEvent = ResponderSyntheticEvent.getPooled(
-          eventTypes.responderReject,
+          eventTypes.onResponderReject,
           wantsResponderInst,
           nativeEvent,
           nativeEventTarget,
@@ -607,10 +607,10 @@ export default function createResponderEventPlugin(TopLevelTypes: {
       const isResponderTouchMove = responderInst && isMoveish(topLevelType);
       const isResponderTouchEnd = responderInst && isEndish(topLevelType);
       const incrementalTouch = isResponderTouchStart
-        ? eventTypes.responderStart
+        ? eventTypes.onResponderStart
         : isResponderTouchMove
-          ? eventTypes.responderMove
-          : isResponderTouchEnd ? eventTypes.responderEnd : null;
+          ? eventTypes.onResponderMove
+          : isResponderTouchEnd ? eventTypes.onResponderEnd : null;
 
       if (incrementalTouch) {
         const gesture = ResponderSyntheticEvent.getPooled(
@@ -632,8 +632,8 @@ export default function createResponderEventPlugin(TopLevelTypes: {
         isEndish(topLevelType) &&
         noResponderTouches(nativeEvent);
       const finalTouch = isResponderTerminate
-        ? eventTypes.responderTerminate
-        : isResponderRelease ? eventTypes.responderRelease : null;
+        ? eventTypes.onResponderTerminate
+        : isResponderRelease ? eventTypes.onResponderRelease : null;
       if (finalTouch) {
         const finalEvent = ResponderSyntheticEvent.getPooled(
           finalTouch,

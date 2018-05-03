@@ -15,11 +15,11 @@ import {
 } from '../client/ReactDOMComponentTree';
 
 const eventTypes = {
-  mouseEnter: {
+  onMouseEnter: {
     registrationName: 'onMouseEnter',
     dependencies: [TOP_MOUSE_OUT, TOP_MOUSE_OVER],
   },
-  mouseLeave: {
+  onMouseLeave: {
     registrationName: 'onMouseLeave',
     dependencies: [TOP_MOUSE_OUT, TOP_MOUSE_OVER],
   },

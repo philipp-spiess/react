@@ -336,7 +336,7 @@ const ReactTestUtils = {
  * - `ReactTestUtils.Simulate.change(Element)`
  * - ... (All keys from event plugin `eventTypes` objects)
  */
-function makeSimulator(eventType) {
+function makeSimulator(onEventType, eventType) {
   return function(domNode, eventData) {
     invariant(
       !React.isValidElement(domNode),
@@ -351,7 +351,7 @@ function makeSimulator(eventType) {
     );
 
     const dispatchConfig =
-      EventPluginRegistry.eventNameDispatchConfigs[eventType];
+      EventPluginRegistry.eventNameDispatchConfigs[onEventType];
 
     const fakeNativeEvent = new Event();
     fakeNativeEvent.target = domNode;
@@ -391,13 +391,14 @@ function makeSimulator(eventType) {
 function buildSimulators() {
   ReactTestUtils.Simulate = {};
 
-  let eventType;
-  for (eventType in EventPluginRegistry.eventNameDispatchConfigs) {
+  let onEventType;
+  for (onEventType in EventPluginRegistry.eventNameDispatchConfigs) {
+    const eventType = onEventType.charAt(2).toLowerCase() + onEventType.substr(3)
     /**
      * @param {!Element|ReactDOMComponent} domComponentOrNode
      * @param {?object} eventData Fake event data to use in SyntheticEvent.
      */
-    ReactTestUtils.Simulate[eventType] = makeSimulator(eventType);
+    ReactTestUtils.Simulate[eventType] = makeSimulator(onEventType, eventType);
   }
 }
 

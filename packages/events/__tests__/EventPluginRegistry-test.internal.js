@@ -149,13 +149,13 @@ describe('EventPluginRegistry', () => {
   it('should publish registration names of injected plugins', () => {
     const OnePlugin = createPlugin({
       eventTypes: {
-        click: {registrationName: 'onClick'},
-        focus: {registrationName: 'onFocus'},
+        onClick: {registrationName: 'onClick'},
+        onFocus: {registrationName: 'onFocus'},
       },
     });
     const TwoPlugin = createPlugin({
       eventTypes: {
-        magic: {
+        onMagic: {
           phasedRegistrationNames: {
             bubbled: 'onMagicBubble',
             captured: 'onMagicCapture',

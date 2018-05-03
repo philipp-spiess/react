@@ -26,25 +26,25 @@ const fakeRequireNativeComponent = (uiViewClassName, validAttributes) => {
       uiViewClassName,
       validAttributes,
       bubblingEventTypes: {
-        topTouchCancel: {
+        onTouchCancel: {
           phasedRegistrationNames: {
             bubbled: 'onTouchCancel',
             captured: 'onTouchCancelCapture',
           },
         },
-        topTouchEnd: {
+        onTouchEnd: {
           phasedRegistrationNames: {
             bubbled: 'onTouchEnd',
             captured: 'onTouchEndCapture',
           },
         },
-        topTouchMove: {
+        onTouchMove: {
           phasedRegistrationNames: {
             bubbled: 'onTouchMove',
             captured: 'onTouchMoveCapture',
           },
         },
-        topTouchStart: {
+        onTouchStart: {
           phasedRegistrationNames: {
             bubbled: 'onTouchStart',
             captured: 'onTouchStartCapture',

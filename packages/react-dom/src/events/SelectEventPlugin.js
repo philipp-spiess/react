@@ -33,7 +33,7 @@ const skipSelectionChangeEvent =
   document.documentMode <= 11;
 
 const eventTypes = {
-  select: {
+  onSelect: {
     phasedRegistrationNames: {
       bubbled: 'onSelect',
       captured: 'onSelectCapture',

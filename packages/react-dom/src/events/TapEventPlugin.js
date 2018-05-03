@@ -96,7 +96,7 @@ const dependencies = [TOP_MOUSE_DOWN, TOP_MOUSE_MOVE, TOP_MOUSE_UP].concat(
 );
 
 const eventTypes = {
-  touchTap: {
+  onTouchTap: {
     phasedRegistrationNames: {
       bubbled: 'onTouchTap',
       captured: 'onTouchTapCapture',
