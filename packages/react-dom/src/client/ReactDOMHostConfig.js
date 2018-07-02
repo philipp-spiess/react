@@ -14,7 +14,6 @@ import * as ReactDOMFiberComponent from './ReactDOMFiberComponent';
 import * as ReactInputSelection from './ReactInputSelection';
 import setTextContent from './setTextContent';
 import validateDOMNesting from './validateDOMNesting';
-import * as ReactBrowserEventEmitter from '../events/ReactBrowserEventEmitter';
 import {getChildNamespace} from '../shared/DOMNamespaces';
 import {
   ELEMENT_NODE,
@@ -70,7 +69,6 @@ if (__DEV__) {
   SUPPRESS_HYDRATION_WARNING = 'suppressHydrationWarning';
 }
 
-let eventsEnabled: ?boolean = null;
 let selectionInformation: ?mixed = null;
 
 function shouldAutoFocusHostComponent(type: string, props: Props): boolean {
@@ -143,16 +141,12 @@ export function getPublicInstance(instance: Instance): * {
 }
 
 export function prepareForCommit(containerInfo: Container): void {
-  eventsEnabled = ReactBrowserEventEmitter.isEnabled();
   selectionInformation = ReactInputSelection.getSelectionInformation();
-  ReactBrowserEventEmitter.setEnabled(false);
 }
 
 export function resetAfterCommit(containerInfo: Container): void {
   ReactInputSelection.restoreSelection(selectionInformation);
   selectionInformation = null;
-  ReactBrowserEventEmitter.setEnabled(eventsEnabled);
-  eventsEnabled = null;
 }
 
 export function createInstance(

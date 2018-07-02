@@ -389,7 +389,7 @@ function deleteAllListeners(instance) {
   instance.memoizedProps = {};
 }
 
-describe('ResponderEventPlugin', () => {
+xdescribe('ResponderEventPlugin', () => {
   beforeEach(() => {
     jest.resetModules();
 

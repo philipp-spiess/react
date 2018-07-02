@@ -5,10 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {
-  registrationNameModules,
-  possibleRegistrationNames,
-} from 'events/EventPluginRegistry';
 import warning from 'shared/warning';
 
 import {
@@ -49,31 +45,9 @@ if (__DEV__) {
 
     // We can't rely on the event system being injected on the server.
     if (canUseEventSystem) {
-      if (registrationNameModules.hasOwnProperty(name)) {
-        return true;
-      }
-      const registrationName = possibleRegistrationNames.hasOwnProperty(
-        lowerCasedName,
-      )
-        ? possibleRegistrationNames[lowerCasedName]
-        : null;
-      if (registrationName != null) {
-        warning(
-          false,
-          'Invalid event handler property `%s`. Did you mean `%s`?',
-          name,
-          registrationName,
-        );
-        warnedProperties[name] = true;
-        return true;
-      }
+      // @TODO(philipp): Make sure to have a map of all support React events in
+      // development to mimic react behavior.
       if (EVENT_NAME_REGEX.test(name)) {
-        warning(
-          false,
-          'Unknown event handler property `%s`. It will be ignored.',
-          name,
-        );
-        warnedProperties[name] = true;
         return true;
       }
     } else if (EVENT_NAME_REGEX.test(name)) {

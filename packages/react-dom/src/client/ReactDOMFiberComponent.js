@@ -9,7 +9,6 @@
 
 // TODO: direct imports like some-package/src/* are bad. Fix me.
 import {getCurrentFiberOwnerNameInDevOrNull} from 'react-reconciler/src/ReactCurrentFiber';
-import {registrationNameModules} from 'events/EventPluginRegistry';
 import warning from 'shared/warning';
 import warningWithoutStack from 'shared/warningWithoutStack';
 
@@ -21,16 +20,6 @@ import * as ReactDOMFiberTextarea from './ReactDOMFiberTextarea';
 import * as inputValueTracking from './inputValueTracking';
 import setInnerHTML from './setInnerHTML';
 import setTextContent from './setTextContent';
-import {
-  TOP_ERROR,
-  TOP_INVALID,
-  TOP_LOAD,
-  TOP_RESET,
-  TOP_SUBMIT,
-  TOP_TOGGLE,
-} from '../events/DOMTopLevelEventTypes';
-import {listenTo, trapBubbledEvent} from '../events/ReactBrowserEventEmitter';
-import {mediaEventTypes} from '../events/DOMTopLevelEventTypes';
 import * as CSSPropertyOperations from '../shared/CSSPropertyOperations';
 import {Namespaces, getIntrinsicNamespace} from '../shared/DOMNamespaces';
 import {
@@ -39,12 +28,14 @@ import {
   shouldRemoveAttribute,
 } from '../shared/DOMProperty';
 import assertValidProps from '../shared/assertValidProps';
-import {DOCUMENT_NODE, DOCUMENT_FRAGMENT_NODE} from '../shared/HTMLNodeType';
+import {DOCUMENT_NODE} from '../shared/HTMLNodeType';
 import isCustomComponent from '../shared/isCustomComponent';
 import possibleStandardNames from '../shared/possibleStandardNames';
 import {validateProperties as validateARIAProperties} from '../shared/ReactDOMInvalidARIAHook';
 import {validateProperties as validateInputProperties} from '../shared/ReactDOMNullInputValuePropHook';
 import {validateProperties as validateUnknownProperties} from '../shared/ReactDOMUnknownPropertyHook';
+
+import {updateListener} from '../slim-events/updateListener';
 
 let didWarnInvalidHydration = false;
 let didWarnShadyDOM = false;
@@ -204,16 +195,6 @@ if (__DEV__) {
   };
 }
 
-function ensureListeningTo(rootContainerElement, registrationName) {
-  const isDocumentOrFragment =
-    rootContainerElement.nodeType === DOCUMENT_NODE ||
-    rootContainerElement.nodeType === DOCUMENT_FRAGMENT_NODE;
-  const doc = isDocumentOrFragment
-    ? rootContainerElement
-    : rootContainerElement.ownerDocument;
-  listenTo(registrationName, doc);
-}
-
 function getOwnerDocumentFromRootContainer(
   rootContainerElement: Element | Document,
 ): Document {
@@ -285,13 +266,11 @@ function setInitialDOMProperties(
     } else if (propKey === AUTOFOCUS) {
       // We polyfill it separately on the client during commit.
       // We blacklist it here rather than in the property list because we emit it in SSR.
-    } else if (registrationNameModules.hasOwnProperty(propKey)) {
-      if (nextProp != null) {
-        if (__DEV__ && typeof nextProp !== 'function') {
-          warnForInvalidEventListener(propKey, nextProp);
-        }
-        ensureListeningTo(rootContainerElement, propKey);
+    } else if (propKey[0] === 'o' && propKey[1] === 'n') {
+      if (__DEV__ && typeof nextProp !== 'function') {
+        warnForInvalidEventListener(propKey, nextProp);
       }
+      updateListener(domElement, propKey, nextProp);
     } else if (nextProp != null) {
       DOMPropertyOperations.setValueForProperty(
         domElement,
@@ -319,6 +298,11 @@ function updateDOMProperties(
       setInnerHTML(domElement, propValue);
     } else if (propKey === CHILDREN) {
       setTextContent(domElement, propValue);
+    } else if (propKey[0] === 'o' && propKey[1] === 'n') {
+      if (__DEV__ && typeof nextProp !== 'function') {
+        warnForInvalidEventListener(propKey, propValue);
+      }
+      updateListener(domElement, propKey, propValue);
     } else {
       DOMPropertyOperations.setValueForProperty(
         domElement,
@@ -444,44 +428,32 @@ export function setInitialProperties(
   switch (tag) {
     case 'iframe':
     case 'object':
-      trapBubbledEvent(TOP_LOAD, domElement);
       props = rawProps;
       break;
     case 'video':
     case 'audio':
       // Create listener for each media event
-      for (let i = 0; i < mediaEventTypes.length; i++) {
-        trapBubbledEvent(mediaEventTypes[i], domElement);
-      }
       props = rawProps;
       break;
     case 'source':
-      trapBubbledEvent(TOP_ERROR, domElement);
       props = rawProps;
       break;
     case 'img':
     case 'image':
     case 'link':
-      trapBubbledEvent(TOP_ERROR, domElement);
-      trapBubbledEvent(TOP_LOAD, domElement);
       props = rawProps;
       break;
     case 'form':
-      trapBubbledEvent(TOP_RESET, domElement);
-      trapBubbledEvent(TOP_SUBMIT, domElement);
       props = rawProps;
       break;
     case 'details':
-      trapBubbledEvent(TOP_TOGGLE, domElement);
       props = rawProps;
       break;
     case 'input':
       ReactDOMFiberInput.initWrapperState(domElement, rawProps);
       props = ReactDOMFiberInput.getHostProps(domElement, rawProps);
-      trapBubbledEvent(TOP_INVALID, domElement);
       // For controlled components we always need to ensure we're listening
       // to onChange. Even if there is no listener.
-      ensureListeningTo(rootContainerElement, 'onChange');
       break;
     case 'option':
       ReactDOMFiberOption.validateProps(domElement, rawProps);
@@ -490,18 +462,14 @@ export function setInitialProperties(
     case 'select':
       ReactDOMFiberSelect.initWrapperState(domElement, rawProps);
       props = ReactDOMFiberSelect.getHostProps(domElement, rawProps);
-      trapBubbledEvent(TOP_INVALID, domElement);
       // For controlled components we always need to ensure we're listening
       // to onChange. Even if there is no listener.
-      ensureListeningTo(rootContainerElement, 'onChange');
       break;
     case 'textarea':
       ReactDOMFiberTextarea.initWrapperState(domElement, rawProps);
       props = ReactDOMFiberTextarea.getHostProps(domElement, rawProps);
-      trapBubbledEvent(TOP_INVALID, domElement);
       // For controlled components we always need to ensure we're listening
       // to onChange. Even if there is no listener.
-      ensureListeningTo(rootContainerElement, 'onChange');
       break;
     default:
       props = rawProps;
@@ -539,7 +507,6 @@ export function setInitialProperties(
     default:
       if (typeof props.onClick === 'function') {
         // TODO: This cast may not be sound for SVG, MathML or custom elements.
-        trapClickOnNonInteractiveElement(((domElement: any): HTMLElement));
       }
       break;
   }
@@ -590,7 +557,6 @@ export function diffProperties(
         typeof nextProps.onClick === 'function'
       ) {
         // TODO: This cast may not be sound for SVG, MathML or custom elements.
-        trapClickOnNonInteractiveElement(((domElement: any): HTMLElement));
       }
       break;
   }
@@ -627,13 +593,6 @@ export function diffProperties(
       // Noop
     } else if (propKey === AUTOFOCUS) {
       // Noop. It doesn't work on updates anyway.
-    } else if (registrationNameModules.hasOwnProperty(propKey)) {
-      // This is a special case. If any listener updates we need to ensure
-      // that the "current" fiber pointer gets updated so we need a commit
-      // to update this element.
-      if (!updatePayload) {
-        updatePayload = [];
-      }
     } else {
       // For all other deleted properties we add it to the queue. We use
       // the whitelist in the commit phase instead.
@@ -711,29 +670,15 @@ export function diffProperties(
       ) {
         (updatePayload = updatePayload || []).push(propKey, '' + nextProp);
       }
+    } else if (propKey[0] === 'o' && propKey[1] === 'n') {
+      // @TODO(philipp): Find out why this is not handled by default. How are
+      // regular prop updates handled?
+      (updatePayload = updatePayload || []).push(propKey, nextProp);
     } else if (
       propKey === SUPPRESS_CONTENT_EDITABLE_WARNING ||
       propKey === SUPPRESS_HYDRATION_WARNING
     ) {
       // Noop
-    } else if (registrationNameModules.hasOwnProperty(propKey)) {
-      if (nextProp != null) {
-        // We eagerly listen to this even though we haven't committed yet.
-        if (__DEV__ && typeof nextProp !== 'function') {
-          warnForInvalidEventListener(propKey, nextProp);
-        }
-        ensureListeningTo(rootContainerElement, propKey);
-      }
-      if (!updatePayload && lastProp !== nextProp) {
-        // This is a special case. If any listener updates we need to ensure
-        // that the "current" props pointer gets updated so we need a commit
-        // to update this element.
-        updatePayload = [];
-      }
-    } else {
-      // For any other property we always add it to the queue and then we
-      // filter it out using the whitelist during the commit.
-      (updatePayload = updatePayload || []).push(propKey, nextProp);
     }
   }
   if (styleUpdates) {
@@ -835,54 +780,38 @@ export function diffHydratedProperties(
   switch (tag) {
     case 'iframe':
     case 'object':
-      trapBubbledEvent(TOP_LOAD, domElement);
       break;
     case 'video':
     case 'audio':
       // Create listener for each media event
-      for (let i = 0; i < mediaEventTypes.length; i++) {
-        trapBubbledEvent(mediaEventTypes[i], domElement);
-      }
       break;
     case 'source':
-      trapBubbledEvent(TOP_ERROR, domElement);
       break;
     case 'img':
     case 'image':
     case 'link':
-      trapBubbledEvent(TOP_ERROR, domElement);
-      trapBubbledEvent(TOP_LOAD, domElement);
       break;
     case 'form':
-      trapBubbledEvent(TOP_RESET, domElement);
-      trapBubbledEvent(TOP_SUBMIT, domElement);
       break;
     case 'details':
-      trapBubbledEvent(TOP_TOGGLE, domElement);
       break;
     case 'input':
       ReactDOMFiberInput.initWrapperState(domElement, rawProps);
-      trapBubbledEvent(TOP_INVALID, domElement);
       // For controlled components we always need to ensure we're listening
       // to onChange. Even if there is no listener.
-      ensureListeningTo(rootContainerElement, 'onChange');
       break;
     case 'option':
       ReactDOMFiberOption.validateProps(domElement, rawProps);
       break;
     case 'select':
       ReactDOMFiberSelect.initWrapperState(domElement, rawProps);
-      trapBubbledEvent(TOP_INVALID, domElement);
       // For controlled components we always need to ensure we're listening
       // to onChange. Even if there is no listener.
-      ensureListeningTo(rootContainerElement, 'onChange');
       break;
     case 'textarea':
       ReactDOMFiberTextarea.initWrapperState(domElement, rawProps);
-      trapBubbledEvent(TOP_INVALID, domElement);
       // For controlled components we always need to ensure we're listening
       // to onChange. Even if there is no listener.
-      ensureListeningTo(rootContainerElement, 'onChange');
       break;
   }
 
@@ -943,13 +872,6 @@ export function diffHydratedProperties(
           }
           updatePayload = [CHILDREN, '' + nextProp];
         }
-      }
-    } else if (registrationNameModules.hasOwnProperty(propKey)) {
-      if (nextProp != null) {
-        if (__DEV__ && typeof nextProp !== 'function') {
-          warnForInvalidEventListener(propKey, nextProp);
-        }
-        ensureListeningTo(rootContainerElement, propKey);
       }
     } else if (
       __DEV__ &&

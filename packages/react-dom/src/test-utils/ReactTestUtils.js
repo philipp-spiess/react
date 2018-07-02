@@ -15,56 +15,16 @@ import {
   HostComponent,
   HostText,
 } from 'shared/ReactTypeOfWork';
-import SyntheticEvent from 'events/SyntheticEvent';
 import invariant from 'shared/invariant';
 import lowPriorityWarning from 'shared/lowPriorityWarning';
 
 import * as DOMTopLevelEventTypes from '../events/DOMTopLevelEventTypes';
-
-const {findDOMNode} = ReactDOM;
-const {
-  EventPluginHub,
-  EventPluginRegistry,
-  EventPropagators,
-  ReactControlledComponent,
-  ReactDOMComponentTree,
-  ReactDOMEventListener,
-} = ReactDOM.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
-
-function Event(suffix) {}
 
 let hasWarnedAboutDeprecatedMockComponent = false;
 
 /**
  * @class ReactTestUtils
  */
-
-/**
- * Simulates a top level event being dispatched from a raw event that occurred
- * on an `Element` node.
- * @param {number} topLevelType A number from `TopLevelEventTypes`
- * @param {!Element} node The dom to simulate an event occurring on.
- * @param {?Event} fakeNativeEvent Fake native event to use in SyntheticEvent.
- */
-function simulateNativeEventOnNode(topLevelType, node, fakeNativeEvent) {
-  fakeNativeEvent.target = node;
-  ReactDOMEventListener.dispatchEvent(topLevelType, fakeNativeEvent);
-}
-
-/**
- * Simulates a top level event being dispatched from a raw event that occurred
- * on the `ReactDOMComponent` `comp`.
- * @param {Object} topLevelType A type from `BrowserEventConstants.topLevelTypes`.
- * @param {!ReactDOMComponent} comp
- * @param {?Event} fakeNativeEvent Fake native event to use in SyntheticEvent.
- */
-function simulateNativeEventOnDOMComponent(
-  topLevelType,
-  comp,
-  fakeNativeEvent,
-) {
-  simulateNativeEventOnNode(topLevelType, findDOMNode(comp), fakeNativeEvent);
-}
 
 function findAllInRenderedFiberTreeInternal(fiber, test) {
   if (!fiber) {
@@ -344,94 +304,6 @@ const ReactTestUtils = {
 /**
  * Exports:
  *
- * - `ReactTestUtils.Simulate.click(Element)`
- * - `ReactTestUtils.Simulate.mouseMove(Element)`
- * - `ReactTestUtils.Simulate.change(Element)`
- * - ... (All keys from event plugin `eventTypes` objects)
- */
-function makeSimulator(eventType) {
-  return function(domNode, eventData) {
-    invariant(
-      !React.isValidElement(domNode),
-      'TestUtils.Simulate expected a DOM node as the first argument but received ' +
-        'a React element. Pass the DOM node you wish to simulate the event on instead. ' +
-        'Note that TestUtils.Simulate will not work if you are using shallow rendering.',
-    );
-    invariant(
-      !ReactTestUtils.isCompositeComponent(domNode),
-      'TestUtils.Simulate expected a DOM node as the first argument but received ' +
-        'a component instance. Pass the DOM node you wish to simulate the event on instead.',
-    );
-
-    const dispatchConfig =
-      EventPluginRegistry.eventNameDispatchConfigs[eventType];
-
-    const fakeNativeEvent = new Event();
-    fakeNativeEvent.target = domNode;
-    fakeNativeEvent.type = eventType.toLowerCase();
-
-    // We don't use SyntheticEvent.getPooled in order to not have to worry about
-    // properly destroying any properties assigned from `eventData` upon release
-    const targetInst = ReactDOMComponentTree.getInstanceFromNode(domNode);
-    const event = new SyntheticEvent(
-      dispatchConfig,
-      targetInst,
-      fakeNativeEvent,
-      domNode,
-    );
-
-    // Since we aren't using pooling, always persist the event. This will make
-    // sure it's marked and won't warn when setting additional properties.
-    event.persist();
-    Object.assign(event, eventData);
-
-    if (dispatchConfig.phasedRegistrationNames) {
-      EventPropagators.accumulateTwoPhaseDispatches(event);
-    } else {
-      EventPropagators.accumulateDirectDispatches(event);
-    }
-
-    ReactDOM.unstable_batchedUpdates(function() {
-      // Normally extractEvent enqueues a state restore, but we'll just always
-      // do that since we we're by-passing it here.
-      ReactControlledComponent.enqueueStateRestore(domNode);
-      EventPluginHub.runEventsInBatch(event, true);
-    });
-    ReactControlledComponent.restoreStateIfNeeded();
-  };
-}
-
-function buildSimulators() {
-  ReactTestUtils.Simulate = {};
-
-  let eventType;
-  for (eventType in EventPluginRegistry.eventNameDispatchConfigs) {
-    /**
-     * @param {!Element|ReactDOMComponent} domComponentOrNode
-     * @param {?object} eventData Fake event data to use in SyntheticEvent.
-     */
-    ReactTestUtils.Simulate[eventType] = makeSimulator(eventType);
-  }
-}
-
-// Rebuild ReactTestUtils.Simulate whenever event plugins are injected
-const oldInjectEventPluginOrder =
-  EventPluginHub.injection.injectEventPluginOrder;
-EventPluginHub.injection.injectEventPluginOrder = function() {
-  oldInjectEventPluginOrder.apply(this, arguments);
-  buildSimulators();
-};
-const oldInjectEventPlugins = EventPluginHub.injection.injectEventPluginsByName;
-EventPluginHub.injection.injectEventPluginsByName = function() {
-  oldInjectEventPlugins.apply(this, arguments);
-  buildSimulators();
-};
-
-buildSimulators();
-
-/**
- * Exports:
- *
  * - `ReactTestUtils.SimulateNative.click(Element/ReactDOMComponent)`
  * - `ReactTestUtils.SimulateNative.mouseMove(Element/ReactDOMComponent)`
  * - `ReactTestUtils.SimulateNative.mouseIn/ReactDOMComponent)`
@@ -447,24 +319,17 @@ buildSimulators();
 
 function makeNativeSimulator(eventType, topLevelType) {
   return function(domComponentOrNode, nativeEventData) {
-    const fakeNativeEvent = new Event(eventType);
-    Object.assign(fakeNativeEvent, nativeEventData);
-    if (ReactTestUtils.isDOMComponent(domComponentOrNode)) {
-      simulateNativeEventOnDOMComponent(
-        topLevelType,
-        domComponentOrNode,
-        fakeNativeEvent,
-      );
-    } else if (domComponentOrNode.tagName) {
-      // Will allow on actual dom nodes.
-      simulateNativeEventOnNode(
-        topLevelType,
-        domComponentOrNode,
-        fakeNativeEvent,
-      );
-    }
+    invariant(
+      true,
+      'react-slim-dom is not compatible with react-test-utils. ' +
+        'Please switch to native event dispatching using dispatchEvent.\n' +
+        '\n' +
+        'https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/dispatchEvent',
+    );
   };
 }
+
+ReactTestUtils.Simulate = {};
 
 [
   [DOMTopLevelEventTypes.TOP_ABORT, 'abort'],
@@ -542,6 +407,11 @@ function makeNativeSimulator(eventType, topLevelType) {
    * @param {?Event} nativeEventData Fake native event to use in SyntheticEvent.
    */
   ReactTestUtils.SimulateNative[eventType] = makeNativeSimulator(
+    eventType,
+    topLevelType,
+  );
+
+  ReactTestUtils.Simulate[eventType] = makeNativeSimulator(
     eventType,
     topLevelType,
   );

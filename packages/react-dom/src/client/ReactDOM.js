@@ -17,16 +17,10 @@ import type {
 import type {Container} from './ReactDOMHostConfig';
 
 import '../shared/checkReact';
-import './ReactDOMClientInjection';
 
 import * as DOMRenderer from 'react-reconciler/inline.dom';
 import * as ReactPortal from 'shared/ReactPortal';
 import {canUseDOM} from 'shared/ExecutionEnvironment';
-import * as ReactGenericBatching from 'events/ReactGenericBatching';
-import * as ReactControlledComponent from 'events/ReactControlledComponent';
-import * as EventPluginHub from 'events/EventPluginHub';
-import * as EventPluginRegistry from 'events/EventPluginRegistry';
-import * as EventPropagators from 'events/EventPropagators';
 import * as ReactInstanceMap from 'shared/ReactInstanceMap';
 import ReactVersion from 'shared/ReactVersion';
 import ReactSharedInternals from 'shared/ReactSharedInternals';
@@ -36,8 +30,6 @@ import lowPriorityWarning from 'shared/lowPriorityWarning';
 import warningWithoutStack from 'shared/warningWithoutStack';
 
 import * as ReactDOMComponentTree from './ReactDOMComponentTree';
-import * as ReactDOMFiberComponent from './ReactDOMFiberComponent';
-import * as ReactDOMEventListener from '../events/ReactDOMEventListener';
 import {
   ELEMENT_NODE,
   COMMENT_NODE,
@@ -124,9 +116,6 @@ if (__DEV__) {
   };
 }
 
-ReactControlledComponent.injection.injectFiberControlledHostComponent(
-  ReactDOMFiberComponent,
-);
 
 type DOMContainer =
   | (Element & {
@@ -450,7 +439,6 @@ function shouldHydrateDueToLegacyHeuristic(container) {
   );
 }
 
-ReactGenericBatching.injection.injectRenderer(DOMRenderer);
 
 let warnedAboutHydrateAPI = false;
 
@@ -740,13 +728,8 @@ const ReactDOM: Object = {
 
   __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED: {
     // For TapEventPlugin which is popular in open source
-    EventPluginHub,
     // Used by test-utils
-    EventPluginRegistry,
-    EventPropagators,
-    ReactControlledComponent,
     ReactDOMComponentTree,
-    ReactDOMEventListener,
   },
 };
 
