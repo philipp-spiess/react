@@ -1353,6 +1353,20 @@ describe('ReactDOMInput', () => {
     ]);
   });
 
+  it('does not fire onChange if an onClick listeners prevents the default implementation', () => {
+    const onChange = jest.fn();
+    const onClick = e => e.preventDefault();
+
+    const node = ReactDOM.render(
+      <input type="checkbox" onClick={onClick} onChange={onChange} />,
+      container,
+    );
+
+    node.click();
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   describe('assigning the value attribute on controlled inputs', function() {
     function getTestInput() {
       return class extends React.Component {
