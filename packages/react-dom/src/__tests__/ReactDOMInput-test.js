@@ -720,7 +720,7 @@ describe('ReactDOMInput', () => {
     expect(cNode.hasAttribute('checked')).toBe(true);
 
     // Now let's run the actual ReactDOMInput change event handler
-    dispatchEventOnNode(bNode, 'click');
+    dispatchEventOnNode(bNode, 'change');
 
     // The original state should have been restored
     expect(aNode.checked).toBe(true);
@@ -833,7 +833,7 @@ describe('ReactDOMInput', () => {
     setUntrackedChecked.call(bNode, false);
 
     // Now let's run the actual ReactDOMInput change event handler
-    dispatchEventOnNode(aNode, 'click');
+    dispatchEventOnNode(aNode, 'change');
 
     // The original state should have been restored
     expect(aNode.checked).toBe(false);
