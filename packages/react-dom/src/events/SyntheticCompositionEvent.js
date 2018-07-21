@@ -5,13 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import SyntheticEvent from 'events/SyntheticEvent';
+import SyntheticEvent, {extend} from 'events/SyntheticEvent';
 
 /**
  * @interface Event
  * @see http://www.w3.org/TR/DOM-Level-3-Events/#events-compositionevents
  */
-const SyntheticCompositionEvent = SyntheticEvent.extend({
+class SyntheticCompositionEvent extends SyntheticEvent {}
+extend(SyntheticCompositionEvent, {
   data: null,
 });
 

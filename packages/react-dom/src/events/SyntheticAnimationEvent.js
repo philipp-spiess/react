@@ -5,14 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import SyntheticEvent from 'events/SyntheticEvent';
+import SyntheticEvent, {extend} from 'events/SyntheticEvent';
 
 /**
  * @interface Event
  * @see http://www.w3.org/TR/css3-animations/#AnimationEvent-interface
  * @see https://developer.mozilla.org/en-US/docs/Web/API/AnimationEvent
  */
-const SyntheticAnimationEvent = SyntheticEvent.extend({
+class SyntheticAnimationEvent extends SyntheticEvent {}
+extend(SyntheticAnimationEvent, {
   animationName: null,
   elapsedTime: null,
   pseudoElement: null,

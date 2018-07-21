@@ -6,12 +6,14 @@
  */
 
 import SyntheticMouseEvent from './SyntheticMouseEvent';
+import {extend} from 'events/SyntheticEvent';
 
 /**
  * @interface PointerEvent
  * @see http://www.w3.org/TR/pointerevents/
  */
-const SyntheticPointerEvent = SyntheticMouseEvent.extend({
+class SyntheticPointerEvent extends SyntheticMouseEvent {}
+extend(SyntheticPointerEvent, {
   pointerId: null,
   width: null,
   height: null,

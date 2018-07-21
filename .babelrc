@@ -18,6 +18,7 @@
     ["transform-es2015-spread", { "loose": true }],
     "transform-es2015-parameters",
     ["transform-es2015-destructuring", { "loose": true }],
-    ["transform-es2015-block-scoping", { "throwIfClosureRequired": true }]
+    ["transform-es2015-block-scoping", { "throwIfClosureRequired": true }],
+    "external-helpers"
   ]
 }

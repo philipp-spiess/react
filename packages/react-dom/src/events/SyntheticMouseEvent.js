@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import SyntheticUIEvent from './SyntheticUIEvent';
+import {extend} from 'events/SyntheticEvent';
 import getEventModifierState from './getEventModifierState';
+import SyntheticUIEvent from './SyntheticUIEvent';
 
 let previousScreenX = 0;
 let previousScreenY = 0;
@@ -18,7 +19,8 @@ let isMovementYSet = false;
  * @interface MouseEvent
  * @see http://www.w3.org/TR/DOM-Level-3-Events/
  */
-const SyntheticMouseEvent = SyntheticUIEvent.extend({
+class SyntheticMouseEvent extends SyntheticUIEvent {}
+extend(SyntheticMouseEvent, {
   screenX: null,
   screenY: null,
   clientX: null,

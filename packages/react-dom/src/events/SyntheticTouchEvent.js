@@ -7,12 +7,14 @@
 
 import SyntheticUIEvent from './SyntheticUIEvent';
 import getEventModifierState from './getEventModifierState';
+import {extend} from 'events/SyntheticEvent';
 
 /**
  * @interface TouchEvent
  * @see http://www.w3.org/TR/touch-events/
  */
-const SyntheticTouchEvent = SyntheticUIEvent.extend({
+class SyntheticTouchEvent extends SyntheticUIEvent {}
+extend(SyntheticTouchEvent, {
   touches: null,
   targetTouches: null,
   changedTouches: null,

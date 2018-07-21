@@ -6,12 +6,14 @@
  */
 
 import SyntheticMouseEvent from './SyntheticMouseEvent';
+import {extend} from 'events/SyntheticEvent';
 
 /**
  * @interface WheelEvent
  * @see http://www.w3.org/TR/DOM-Level-3-Events/
  */
-const SyntheticWheelEvent = SyntheticMouseEvent.extend({
+class SyntheticWheelEvent extends SyntheticMouseEvent {}
+extend(SyntheticWheelEvent, {
   deltaX(event) {
     return 'deltaX' in event
       ? event.deltaX

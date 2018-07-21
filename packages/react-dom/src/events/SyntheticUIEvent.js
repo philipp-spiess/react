@@ -5,9 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import SyntheticEvent from 'events/SyntheticEvent';
+import SyntheticEvent, {extend} from 'events/SyntheticEvent';
 
-const SyntheticUIEvent = SyntheticEvent.extend({
+class SyntheticUIEvent extends SyntheticEvent {}
+extend(SyntheticUIEvent, {
   view: null,
   detail: null,
 });

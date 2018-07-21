@@ -72,6 +72,18 @@ function SyntheticEvent(
     delete this.stopPropagation;
     delete this.isDefaultPrevented;
     delete this.isPropagationStopped;
+
+    const hiddenProperty = {
+      enumerable: false,
+      writable: true,
+      configurable: true,
+      value: null,
+    };
+
+    Object.defineProperty(this, 'dispatchConfig', hiddenProperty);
+    Object.defineProperty(this, '_targetInst', hiddenProperty);
+    Object.defineProperty(this, '_dispatchListeners', hiddenProperty);
+    Object.defineProperty(this, '_dispatchInstances', hiddenProperty);
   }
 
   this.dispatchConfig = dispatchConfig;
@@ -224,29 +236,10 @@ Object.assign(SyntheticEvent.prototype, {
 
 SyntheticEvent.Interface = EventInterface;
 
-/**
- * Helper to reduce boilerplate when creating subclasses.
- */
-SyntheticEvent.extend = function(Interface) {
-  const Super = this;
-
-  const E = function() {};
-  E.prototype = Super.prototype;
-  const prototype = new E();
-
-  function Class() {
-    return Super.apply(this, arguments);
-  }
-  Object.assign(prototype, Class.prototype);
-  Class.prototype = prototype;
-  Class.prototype.constructor = Class;
-
-  Class.Interface = Object.assign({}, Super.Interface, Interface);
-  Class.extend = Super.extend;
+export function extend(Class, Interface) {
+  Class.Interface = Object.assign({}, Interface, Class.Interface);
   addEventPoolingTo(Class);
-
-  return Class;
-};
+}
 
 addEventPoolingTo(SyntheticEvent);
 

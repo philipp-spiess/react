@@ -6,12 +6,14 @@
  */
 
 import SyntheticMouseEvent from './SyntheticMouseEvent';
+import {extend} from 'events/SyntheticEvent';
 
 /**
  * @interface DragEvent
  * @see http://www.w3.org/TR/DOM-Level-3-Events/
  */
-const SyntheticDragEvent = SyntheticMouseEvent.extend({
+class SyntheticDragEvent extends SyntheticMouseEvent {}
+extend(SyntheticDragEvent, {
   dataTransfer: null,
 });
 

@@ -9,12 +9,14 @@ import SyntheticUIEvent from './SyntheticUIEvent';
 import getEventCharCode from './getEventCharCode';
 import getEventKey from './getEventKey';
 import getEventModifierState from './getEventModifierState';
+import {extend} from 'events/SyntheticEvent';
 
 /**
  * @interface KeyboardEvent
  * @see http://www.w3.org/TR/DOM-Level-3-Events/
  */
-const SyntheticKeyboardEvent = SyntheticUIEvent.extend({
+class SyntheticKeyboardEvent extends SyntheticUIEvent {}
+extend(SyntheticKeyboardEvent, {
   key: getEventKey,
   location: null,
   ctrlKey: null,

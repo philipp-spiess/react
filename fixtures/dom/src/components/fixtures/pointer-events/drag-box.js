@@ -13,6 +13,8 @@ class DragBox extends React.Component {
   previousTop = 0;
 
   onDown = event => {
+    console.log(event);
+    console.log(event.nativeEvent);
     this.isDragging = true;
     event.target.setPointerCapture(event.pointerId);
 

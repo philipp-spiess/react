@@ -6,12 +6,14 @@
  */
 
 import SyntheticUIEvent from './SyntheticUIEvent';
+import {extend} from 'events/SyntheticEvent';
 
 /**
  * @interface FocusEvent
  * @see http://www.w3.org/TR/DOM-Level-3-Events/
  */
-const SyntheticFocusEvent = SyntheticUIEvent.extend({
+class SyntheticFocusEvent extends SyntheticUIEvent {}
+extend(SyntheticFocusEvent, {
   relatedTarget: null,
 });
 
