@@ -18,7 +18,7 @@ import {
   accumulateTwoPhaseDispatches,
   accumulateTwoPhaseDispatchesSkipTarget,
 } from './EventPropagators';
-import ResponderSyntheticEvent from './ResponderSyntheticEvent';
+import {createResponderSyntheticEvent} from './ResponderSyntheticEvent';
 import ResponderTouchHistoryStore from './ResponderTouchHistoryStore';
 import accumulate from './accumulate';
 import {
@@ -365,7 +365,7 @@ function setResponderAndExtractTransfer(
   // It's strange to get an `onMoveShouldSetResponder` when you're *already*
   // the responder.
   const skipOverBubbleShouldSetFrom = bubbleShouldSetFrom === responderInst;
-  const shouldSetEvent = ResponderSyntheticEvent.getPooled(
+  const shouldSetEvent = createResponderSyntheticEvent(
     shouldSetEventType,
     bubbleShouldSetFrom,
     nativeEvent,
@@ -386,7 +386,7 @@ function setResponderAndExtractTransfer(
     return null;
   }
   let extracted;
-  const grantEvent = ResponderSyntheticEvent.getPooled(
+  const grantEvent = createResponderSyntheticEvent(
     eventTypes.responderGrant,
     wantsResponderInst,
     nativeEvent,
@@ -397,7 +397,7 @@ function setResponderAndExtractTransfer(
   accumulateDirectDispatches(grantEvent);
   const blockHostResponder = executeDirectDispatch(grantEvent) === true;
   if (responderInst) {
-    const terminationRequestEvent = ResponderSyntheticEvent.getPooled(
+    const terminationRequestEvent = createResponderSyntheticEvent(
       eventTypes.responderTerminationRequest,
       responderInst,
       nativeEvent,
@@ -414,7 +414,7 @@ function setResponderAndExtractTransfer(
     }
 
     if (shouldSwitch) {
-      const terminateEvent = ResponderSyntheticEvent.getPooled(
+      const terminateEvent = createResponderSyntheticEvent(
         eventTypes.responderTerminate,
         responderInst,
         nativeEvent,
@@ -425,7 +425,7 @@ function setResponderAndExtractTransfer(
       extracted = accumulate(extracted, [grantEvent, terminateEvent]);
       changeResponder(wantsResponderInst, blockHostResponder);
     } else {
-      const rejectEvent = ResponderSyntheticEvent.getPooled(
+      const rejectEvent = createResponderSyntheticEvent(
         eventTypes.responderReject,
         wantsResponderInst,
         nativeEvent,
@@ -553,7 +553,7 @@ const ResponderEventPlugin = {
           : null;
 
     if (incrementalTouch) {
-      const gesture = ResponderSyntheticEvent.getPooled(
+      const gesture = createResponderSyntheticEvent(
         incrementalTouch,
         responderInst,
         nativeEvent,
@@ -577,7 +577,7 @@ const ResponderEventPlugin = {
         ? eventTypes.responderRelease
         : null;
     if (finalTouch) {
-      const finalEvent = ResponderSyntheticEvent.getPooled(
+      const finalEvent = createResponderSyntheticEvent(
         finalTouch,
         responderInst,
         nativeEvent,

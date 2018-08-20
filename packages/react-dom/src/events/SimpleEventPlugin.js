@@ -19,22 +19,22 @@ import type {Fiber} from 'react-reconciler/src/ReactFiber';
 import type {EventTypes, PluginModule} from 'events/PluginModuleType';
 
 import {accumulateTwoPhaseDispatches} from 'events/EventPropagators';
-import SyntheticEvent from 'events/SyntheticEvent';
+import {createSyntheticEvent} from 'events/SyntheticEvent';
 
 import * as DOMTopLevelEventTypes from './DOMTopLevelEventTypes';
 import warningWithoutStack from 'shared/warningWithoutStack';
 
-import SyntheticAnimationEvent from './SyntheticAnimationEvent';
-import SyntheticClipboardEvent from './SyntheticClipboardEvent';
-import SyntheticFocusEvent from './SyntheticFocusEvent';
-import SyntheticKeyboardEvent from './SyntheticKeyboardEvent';
-import SyntheticMouseEvent from './SyntheticMouseEvent';
-import SyntheticPointerEvent from './SyntheticPointerEvent';
-import SyntheticDragEvent from './SyntheticDragEvent';
-import SyntheticTouchEvent from './SyntheticTouchEvent';
-import SyntheticTransitionEvent from './SyntheticTransitionEvent';
-import SyntheticUIEvent from './SyntheticUIEvent';
-import SyntheticWheelEvent from './SyntheticWheelEvent';
+import {createSyntheticAnimationEvent} from './SyntheticAnimationEvent';
+import {createSyntheticClipboardEvent} from './SyntheticClipboardEvent';
+import {createSyntheticFocusEvent} from './SyntheticFocusEvent';
+import {createSyntheticKeyboardEvent} from './SyntheticKeyboardEvent';
+import {createSyntheticMouseEvent} from './SyntheticMouseEvent';
+import {createSyntheticPointerEvent} from './SyntheticPointerEvent';
+import {createSyntheticDragEvent} from './SyntheticDragEvent';
+import {createSyntheticTouchEvent} from './SyntheticTouchEvent';
+import {createSyntheticTransitionEvent} from './SyntheticTransitionEvent';
+import {createSyntheticUIEvent} from './SyntheticUIEvent';
+import {createSyntheticWheelEvent} from './SyntheticWheelEvent';
 import getEventCharCode from './getEventCharCode';
 
 /**
@@ -221,7 +221,7 @@ const SimpleEventPlugin: PluginModule<MouseEvent> & {
     if (!dispatchConfig) {
       return null;
     }
-    let EventConstructor;
+    let eventCreator;
     switch (topLevelType) {
       case DOMTopLevelEventTypes.TOP_KEY_PRESS:
         // Firefox creates a keypress event for function keys too. This removes
@@ -233,11 +233,11 @@ const SimpleEventPlugin: PluginModule<MouseEvent> & {
       /* falls through */
       case DOMTopLevelEventTypes.TOP_KEY_DOWN:
       case DOMTopLevelEventTypes.TOP_KEY_UP:
-        EventConstructor = SyntheticKeyboardEvent;
+        eventCreator = createSyntheticKeyboardEvent;
         break;
       case DOMTopLevelEventTypes.TOP_BLUR:
       case DOMTopLevelEventTypes.TOP_FOCUS:
-        EventConstructor = SyntheticFocusEvent;
+        eventCreator = createSyntheticFocusEvent;
         break;
       case DOMTopLevelEventTypes.TOP_CLICK:
         // Firefox creates a click event on right mouse clicks. This removes the
@@ -256,7 +256,7 @@ const SimpleEventPlugin: PluginModule<MouseEvent> & {
       case DOMTopLevelEventTypes.TOP_MOUSE_OUT:
       case DOMTopLevelEventTypes.TOP_MOUSE_OVER:
       case DOMTopLevelEventTypes.TOP_CONTEXT_MENU:
-        EventConstructor = SyntheticMouseEvent;
+        eventCreator = createSyntheticMouseEvent;
         break;
       case DOMTopLevelEventTypes.TOP_DRAG:
       case DOMTopLevelEventTypes.TOP_DRAG_END:
@@ -266,32 +266,32 @@ const SimpleEventPlugin: PluginModule<MouseEvent> & {
       case DOMTopLevelEventTypes.TOP_DRAG_OVER:
       case DOMTopLevelEventTypes.TOP_DRAG_START:
       case DOMTopLevelEventTypes.TOP_DROP:
-        EventConstructor = SyntheticDragEvent;
+        eventCreator = createSyntheticDragEvent;
         break;
       case DOMTopLevelEventTypes.TOP_TOUCH_CANCEL:
       case DOMTopLevelEventTypes.TOP_TOUCH_END:
       case DOMTopLevelEventTypes.TOP_TOUCH_MOVE:
       case DOMTopLevelEventTypes.TOP_TOUCH_START:
-        EventConstructor = SyntheticTouchEvent;
+        eventCreator = createSyntheticTouchEvent;
         break;
       case DOMTopLevelEventTypes.TOP_ANIMATION_END:
       case DOMTopLevelEventTypes.TOP_ANIMATION_ITERATION:
       case DOMTopLevelEventTypes.TOP_ANIMATION_START:
-        EventConstructor = SyntheticAnimationEvent;
+        eventCreator = createSyntheticAnimationEvent;
         break;
       case DOMTopLevelEventTypes.TOP_TRANSITION_END:
-        EventConstructor = SyntheticTransitionEvent;
+        eventCreator = createSyntheticTransitionEvent;
         break;
       case DOMTopLevelEventTypes.TOP_SCROLL:
-        EventConstructor = SyntheticUIEvent;
+        eventCreator = createSyntheticUIEvent;
         break;
       case DOMTopLevelEventTypes.TOP_WHEEL:
-        EventConstructor = SyntheticWheelEvent;
+        eventCreator = createSyntheticWheelEvent;
         break;
       case DOMTopLevelEventTypes.TOP_COPY:
       case DOMTopLevelEventTypes.TOP_CUT:
       case DOMTopLevelEventTypes.TOP_PASTE:
-        EventConstructor = SyntheticClipboardEvent;
+        eventCreator = createSyntheticClipboardEvent;
         break;
       case DOMTopLevelEventTypes.TOP_GOT_POINTER_CAPTURE:
       case DOMTopLevelEventTypes.TOP_LOST_POINTER_CAPTURE:
@@ -301,7 +301,7 @@ const SimpleEventPlugin: PluginModule<MouseEvent> & {
       case DOMTopLevelEventTypes.TOP_POINTER_OUT:
       case DOMTopLevelEventTypes.TOP_POINTER_OVER:
       case DOMTopLevelEventTypes.TOP_POINTER_UP:
-        EventConstructor = SyntheticPointerEvent;
+        eventCreator = createSyntheticPointerEvent;
         break;
       default:
         if (__DEV__) {
@@ -316,10 +316,14 @@ const SimpleEventPlugin: PluginModule<MouseEvent> & {
         }
         // HTML Events
         // @see http://www.w3.org/TR/html5/index.html#events-0
-        EventConstructor = SyntheticEvent;
+        eventCreator = createSyntheticEvent;
         break;
     }
-    const event = EventConstructor.getPooled(
+
+    if(!eventCreator) {
+    throw new Error(topLevelType)
+    }
+    const event = eventCreator(
       dispatchConfig,
       targetInst,
       nativeEvent,

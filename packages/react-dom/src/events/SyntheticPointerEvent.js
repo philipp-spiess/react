@@ -5,23 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import SyntheticMouseEvent from './SyntheticMouseEvent';
+import {createSyntheticMouseEvent} from './SyntheticMouseEvent';
 
-/**
- * @interface PointerEvent
- * @see http://www.w3.org/TR/pointerevents/
- */
-const SyntheticPointerEvent = SyntheticMouseEvent.extend({
-  pointerId: null,
-  width: null,
-  height: null,
-  pressure: null,
-  tangentialPressure: null,
-  tiltX: null,
-  tiltY: null,
-  twist: null,
-  pointerType: null,
-  isPrimary: null,
-});
-
-export default SyntheticPointerEvent;
+export const createSyntheticPointerEvent = createSyntheticMouseEvent;

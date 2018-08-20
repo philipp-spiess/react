@@ -46,10 +46,6 @@ const executeDispatchesAndRelease = function(
 ) {
   if (event) {
     executeDispatchesInOrder(event, simulated);
-
-    if (!event.isPersistent()) {
-      event.constructor.release(event);
-    }
   }
 };
 const executeDispatchesAndReleaseSimulated = function(e) {

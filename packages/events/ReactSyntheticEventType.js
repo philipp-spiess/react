@@ -23,11 +23,5 @@ export type DispatchConfig = {
 
 export type ReactSyntheticEvent = {
   dispatchConfig: DispatchConfig,
-  getPooled: (
-    dispatchConfig: DispatchConfig,
-    targetInst: Fiber,
-    nativeTarget: Event,
-    nativeEventTarget: EventTarget,
-  ) => ReactSyntheticEvent,
   isPersistent: () => boolean,
 } & SyntheticEvent<>;

@@ -9,7 +9,7 @@ import * as EventPluginHub from 'events/EventPluginHub';
 import {accumulateTwoPhaseDispatches} from 'events/EventPropagators';
 import {enqueueStateRestore} from 'events/ReactControlledComponent';
 import {batchedUpdates} from 'events/ReactGenericBatching';
-import SyntheticEvent from 'events/SyntheticEvent';
+import {createSyntheticEvent} from 'events/SyntheticEvent';
 import isTextInputElement from 'shared/isTextInputElement';
 import {canUseDOM} from 'shared/ExecutionEnvironment';
 
@@ -49,7 +49,7 @@ const eventTypes = {
 };
 
 function createAndAccumulateChangeEvent(inst, nativeEvent, target) {
-  const event = SyntheticEvent.getPooled(
+  const event = createSyntheticEvent(
     eventTypes.change,
     inst,
     nativeEvent,

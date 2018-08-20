@@ -7,7 +7,7 @@
 
 import {accumulateTwoPhaseDispatches} from 'events/EventPropagators';
 import {canUseDOM} from 'shared/ExecutionEnvironment';
-import SyntheticEvent from 'events/SyntheticEvent';
+import {createSyntheticEvent} from 'events/SyntheticEvent';
 import isTextInputElement from 'shared/isTextInputElement';
 import shallowEqual from 'shared/shallowEqual';
 
@@ -128,7 +128,7 @@ function constructSelectEvent(nativeEvent, nativeEventTarget) {
   if (!lastSelection || !shallowEqual(lastSelection, currentSelection)) {
     lastSelection = currentSelection;
 
-    const syntheticEvent = SyntheticEvent.getPooled(
+    const syntheticEvent = createSyntheticEvent(
       eventTypes.select,
       activeElementInst,
       nativeEvent,

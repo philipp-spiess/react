@@ -23,8 +23,8 @@ import {
   TOP_PASTE,
 } from './DOMTopLevelEventTypes';
 import * as FallbackCompositionState from './FallbackCompositionState';
-import SyntheticCompositionEvent from './SyntheticCompositionEvent';
-import SyntheticInputEvent from './SyntheticInputEvent';
+import {createSyntheticCompositionEvent} from './SyntheticCompositionEvent';
+import {createSyntheticInputEvent} from './SyntheticInputEvent';
 
 const END_KEYCODES = [9, 13, 27, 32]; // Tab, Return, Esc, Space
 const START_KEYCODE = 229;
@@ -254,7 +254,7 @@ function extractCompositionEvent(
     }
   }
 
-  const event = SyntheticCompositionEvent.getPooled(
+  const event = createSyntheticCompositionEvent(
     eventType,
     targetInst,
     nativeEvent,
@@ -425,7 +425,7 @@ function extractBeforeInputEvent(
     return null;
   }
 
-  const event = SyntheticInputEvent.getPooled(
+  const event = createSyntheticInputEvent(
     eventTypes.beforeInput,
     targetInst,
     nativeEvent,

@@ -13,8 +13,8 @@ import {
   TOP_POINTER_OUT,
   TOP_POINTER_OVER,
 } from './DOMTopLevelEventTypes';
-import SyntheticMouseEvent from './SyntheticMouseEvent';
-import SyntheticPointerEvent from './SyntheticPointerEvent';
+import {createSyntheticMouseEvent} from './SyntheticMouseEvent';
+import {createSyntheticPointerEvent} from './SyntheticPointerEvent';
 import {
   getClosestInstanceFromNode,
   getNodeFromInstance,
@@ -100,10 +100,10 @@ const EnterLeaveEventPlugin = {
       return null;
     }
 
-    let eventInterface, leaveEventType, enterEventType, eventTypePrefix;
+    let eventCreator, leaveEventType, enterEventType, eventTypePrefix;
 
     if (topLevelType === TOP_MOUSE_OUT || topLevelType === TOP_MOUSE_OVER) {
-      eventInterface = SyntheticMouseEvent;
+      eventCreator = createSyntheticMouseEvent;
       leaveEventType = eventTypes.mouseLeave;
       enterEventType = eventTypes.mouseEnter;
       eventTypePrefix = 'mouse';
@@ -111,7 +111,7 @@ const EnterLeaveEventPlugin = {
       topLevelType === TOP_POINTER_OUT ||
       topLevelType === TOP_POINTER_OVER
     ) {
-      eventInterface = SyntheticPointerEvent;
+      eventCreator = createSyntheticPointerEvent;
       leaveEventType = eventTypes.pointerLeave;
       enterEventType = eventTypes.pointerEnter;
       eventTypePrefix = 'pointer';
@@ -120,7 +120,7 @@ const EnterLeaveEventPlugin = {
     const fromNode = from == null ? win : getNodeFromInstance(from);
     const toNode = to == null ? win : getNodeFromInstance(to);
 
-    const leave = eventInterface.getPooled(
+    const leave = eventCreator(
       leaveEventType,
       from,
       nativeEvent,
@@ -130,7 +130,7 @@ const EnterLeaveEventPlugin = {
     leave.target = fromNode;
     leave.relatedTarget = toNode;
 
-    const enter = eventInterface.getPooled(
+    const enter = eventCreator(
       enterEventType,
       to,
       nativeEvent,

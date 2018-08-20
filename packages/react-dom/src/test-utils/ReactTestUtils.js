@@ -17,7 +17,7 @@ import {
   HostComponent,
   HostText,
 } from 'shared/ReactTypeOfWork';
-import SyntheticEvent from 'events/SyntheticEvent';
+import {createSyntheticEvent} from 'events/SyntheticEvent';
 import invariant from 'shared/invariant';
 import lowPriorityWarning from 'shared/lowPriorityWarning';
 
@@ -409,7 +409,7 @@ function makeSimulator(eventType) {
     // We don't use SyntheticEvent.getPooled in order to not have to worry about
     // properly destroying any properties assigned from `eventData` upon release
     const targetInst = ReactDOMComponentTree.getInstanceFromNode(domNode);
-    const event = new SyntheticEvent(
+    const event = createSyntheticEvent(
       dispatchConfig,
       targetInst,
       fakeNativeEvent,

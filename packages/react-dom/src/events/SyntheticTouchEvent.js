@@ -5,22 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import SyntheticUIEvent from './SyntheticUIEvent';
+import {createSyntheticEventCreator} from 'events/SyntheticEvent';
+import {SyntheticUIEventNormalizer} from './SyntheticUIEvent';
 import getEventModifierState from './getEventModifierState';
 
-/**
- * @interface TouchEvent
- * @see http://www.w3.org/TR/touch-events/
- */
-const SyntheticTouchEvent = SyntheticUIEvent.extend({
-  touches: null,
-  targetTouches: null,
-  changedTouches: null,
-  altKey: null,
-  metaKey: null,
-  ctrlKey: null,
-  shiftKey: null,
-  getModifierState: getEventModifierState,
-});
+const SyntheticTouchEventNormalizer = Object.assign(
+  {},
+  SyntheticUIEventNormalizer,
+  {
+    getModifierState: getEventModifierState,
+  },
+);
 
-export default SyntheticTouchEvent;
+export const createSyntheticTouchEvent = createSyntheticEventCreator(
+  SyntheticTouchEventNormalizer,
+);

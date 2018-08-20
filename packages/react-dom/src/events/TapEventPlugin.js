@@ -23,7 +23,7 @@ import {
   TOP_TOUCH_MOVE,
   TOP_TOUCH_START,
 } from './DOMTopLevelEventTypes';
-import SyntheticUIEvent from './SyntheticUIEvent';
+import {createSyntheticUIEvent} from './SyntheticUIEvent';
 
 function isStartish(topLevelType) {
   return (
@@ -181,7 +181,7 @@ const TapEventPlugin = {
     let event = null;
     const distance = getDistance(startCoords, nativeEvent);
     if (isEndish(topLevelType) && distance < tapMoveThreshold) {
-      event = SyntheticUIEvent.getPooled(
+      event = createSyntheticUIEvent(
         eventTypes.touchTap,
         targetInst,
         nativeEvent,

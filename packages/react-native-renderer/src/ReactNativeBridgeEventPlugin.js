@@ -14,7 +14,7 @@ import {
 } from 'events/EventPropagators';
 import type {TopLevelType} from 'events/TopLevelEventTypes';
 import * as ReactNativeViewConfigRegistry from 'ReactNativeViewConfigRegistry';
-import SyntheticEvent from 'events/SyntheticEvent';
+import {createSyntheticEvent} from 'events/SyntheticEvent';
 import invariant from 'shared/invariant';
 
 const {
@@ -46,7 +46,7 @@ const ReactNativeBridgeEventPlugin = {
       'Unsupported top level event type "%s" dispatched',
       topLevelType,
     );
-    const event = SyntheticEvent.getPooled(
+    const event = createSyntheticEvent(
       bubbleDispatchConfig || directDispatchConfig,
       targetInst,
       nativeEvent,
