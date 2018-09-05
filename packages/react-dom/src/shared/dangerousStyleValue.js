@@ -5,8 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {isUnitlessNumber} from './CSSProperty';
-
 /**
  * Convert a value into the proper css writable value. The style name `name`
  * should be logical (no hyphens), as specified
@@ -35,8 +33,7 @@ function dangerousStyleValue(name, value, isCustomProperty) {
   if (
     !isCustomProperty &&
     typeof value === 'number' &&
-    value !== 0 &&
-    !(isUnitlessNumber.hasOwnProperty(name) && isUnitlessNumber[name])
+    value !== 0
   ) {
     return value + 'px'; // Presumes implicit 'px' suffix for unitless numbers
   }
