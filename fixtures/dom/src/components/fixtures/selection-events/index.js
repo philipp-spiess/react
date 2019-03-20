@@ -1,6 +1,7 @@
 import FixtureSet from '../../FixtureSet';
 import ReorderedInputsTestCase from './ReorderedInputsTestCase';
 import OnSelectEventTestCase from './OnSelectEventTestCase';
+import CrossOriginFrameTestCase from './CrossOriginFrameTestCase';
 const React = window.React;
 
 export default function SelectionEvents() {
@@ -14,6 +15,7 @@ export default function SelectionEvents() {
       ">
       <ReorderedInputsTestCase />
       <OnSelectEventTestCase />
+      <CrossOriginFrameTestCase />
     </FixtureSet>
   );
 }
